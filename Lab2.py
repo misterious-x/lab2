@@ -7,6 +7,7 @@ import tkinter.messagebox as msgbox
 @dataclass
 class TemperatureMeasurement:
     date: date
+    color: str
     type_measure: str
     location: str
     value: float
@@ -33,13 +34,13 @@ def parse_value(value_str: str) -> float:
 def parse_line(line: str) -> TemperatureMeasurement:
     strings, remaining_line = extract_strings(line)
 
-    type_measure, location = strings
+    color, type_measure, location = strings
 
     parts = remaining_line.split()
     date_ = parse_date(parts[0])
     value = parse_value(parts[1])
 
-    return TemperatureMeasurement(date_, type_measure, location, value)
+    return TemperatureMeasurement(date_, color, type_measure, location, value)
 
 
 def read_measurements_from_file(filename: str) -> list:
@@ -54,7 +55,7 @@ class TemperatureApp:
 
         self.measurements = measurements
 
-        self.tree = ttk.Treeview(root, columns=("date", "type", "location", "value"), show='headings')
+        self.tree = ttk.Treeview(root, columns=("date", "color", "type", "location", "value"), show='headings')
         for col in self.tree["columns"]:
             self.tree.heading(col, text=col.capitalize())
             self.tree.column(col, anchor='center')
@@ -67,6 +68,10 @@ class TemperatureApp:
         Label(self.root, text="Дата (гггг.мм.дд):").pack()
         self.date_var = StringVar()
         Entry(self.root, textvariable=self.date_var).pack()
+
+        Label(self.root, text="Цвет:").pack()
+        self.color_var = StringVar()
+        Entry(self.root, textvariable=self.color_var).pack()
 
         Label(self.root, text="Режим работы:").pack()
         self.type_var = StringVar()
@@ -88,17 +93,18 @@ class TemperatureApp:
             self.tree.insert('', END, values=self._measurement_to_tuple(m))
 
     def _measurement_to_tuple(self, m: TemperatureMeasurement):
-        return (m.date.strftime("%Y.%m.%d"), m.type_measure, m.location, f"{m.value:.2f}")
+        return (m.date.strftime("%Y.%m.%d"), m.color, m.type_measure, m.location, f"{m.value:.2f}")
 
     def add_measurement(self):
         try:
             year, month, day = map(int, self.date_var.get().split('.'))
             date_ = date(year, month, day)
+            color = self.color_var.get()
             type_ = self.type_var.get()
             location = self.location_var.get()
             value = float(self.value_var.get())
 
-            m = TemperatureMeasurement(date_, type_, location, value)
+            m = TemperatureMeasurement(date_, color, type_, location, value)
             self.measurements.append(m)
             self.tree.insert('', END, values=self._measurement_to_tuple(m))
         except Exception as e:
