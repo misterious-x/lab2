@@ -83,9 +83,19 @@ class TemperatureApp:
         Button(self.root, text="Добавить", command=self.add_measurement).pack(pady=5)
         Button(self.root, text="Удалить", command=self.delete_selected).pack(pady=5)
 
+        Label(self.root, text="Путь файла:").pack()
+        self.file_var = StringVar()
+        Entry(self.root, textvariable=self.file_var).pack()
+
+        Button(self.root, text="Открыть файл", command=self.open_file).pack(pady=5)
+
     def _populate_tree(self):
         for m in self.measurements:
             self.tree.insert('', END, values=self._measurement_to_tuple(m))
+    
+    def _delete_tree(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
 
     def _measurement_to_tuple(self, m: TemperatureMeasurement):
         return (m.date.strftime("%Y.%m.%d"), m.type_measure, m.location, f"{m.value:.2f}")
@@ -113,6 +123,15 @@ class TemperatureApp:
             index = self.tree.index(item)
             self.tree.delete(item)
             del self.measurements[index]
+
+    def open_file(self):
+        try:
+            FILE_NAME = self.file_var.get()
+            self.measurements = read_measurements_from_file(FILE_NAME)
+            self._delete_tree()
+            self._populate_tree()
+        except:
+            msgbox.showerror("Неверный путь файла!")
 
 
 if __name__ == "__main__":
