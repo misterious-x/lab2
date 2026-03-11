@@ -131,7 +131,7 @@ class TemperatureApp:
             self._delete_tree()
             self._populate_tree()
         except:
-            msgbox.showerror("Неверный путь файла!")
+            msgbox.showerror("Ошибка", "Неверный путь файла!")
 
 
 if __name__ == "__main__":
